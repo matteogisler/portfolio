@@ -61,7 +61,7 @@ export default function Home() {
             <Mascot 
               pose={stage === 1 ? 'walk' : 'speak'}
               position="center"
-              message={stage >= 2 ? "Hello, my name is Matteo. Please select what you are looking for." : undefined}
+              message={stage >= 2 ? "Hello, I'm Matteo's little helper. Please select what you are looking for." : undefined}
             />
           </motion.div>
         )}
