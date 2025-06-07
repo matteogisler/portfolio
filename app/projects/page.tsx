@@ -10,30 +10,27 @@ import PixelButton from '@/components/PixelButton';
 const projects = [
   {
     id: 1,
-    title: "E-Commerce Platform",
-    description: "A full-stack e-commerce solution with React, Node.js, and Stripe integration.",
+    title: "AI Calorie Tracker",
+    description: "A calorie tracking application that uses the OpenAI API for advanced food recognition. Users can scan meals with their camera for instant nutritional information and personalized recommendations.",
     image: "https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=600",
-    technologies: ["React", "Node.js", "MongoDB", "Stripe"],
-    github: "#",
-    demo: "#"
+    technologies: ["Flutter", "OpenAI", "Firebase", "iOS"],
   },
   {
     id: 2,
-    title: "Task Management App",
-    description: "A collaborative task manager with real-time updates and team features.",
+    title: "DeFi Trading Dashboard",
+    description: "A clean, modern mock DeFi trading platform built in Next.js and TypeScript with Tailwind CSS. It pulls real-time crypto market data from a third-party API, displays interactive price charts, and features a mock order panel for a polished UX-focused demo.",
     image: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=600",
-    technologies: ["Next.js", "TypeScript", "Prisma", "Socket.io"],
-    github: "#",
-    demo: "#"
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "API"],
+    github: "https://github.com/matteogisler/optitrade",
+    demo: "optitrade.vercel.app"
   },
   {
     id: 3,
-    title: "Weather Dashboard",
-    description: "Beautiful weather app with detailed forecasts and interactive maps.",
+    title: "CipherShare",
+    description: "A decentralized, encrypted file-sharing application using IPFS for storage, PostgreSQL via Prisma for metadata, and an on-chain ACL smart contract deployed on a local Hardhat network.",
     image: "https://images.pexels.com/photos/1118873/pexels-photo-1118873.jpeg?auto=compress&cs=tinysrgb&w=600",
-    technologies: ["Vue.js", "D3.js", "Weather API"],
-    github: "#",
-    demo: "#"
+    technologies: ["IPFS", "Blockchain", "Filesharing"],
+    github: "https://github.com/matteogisler/CipherShare",
   },
   {
     id: 4,
