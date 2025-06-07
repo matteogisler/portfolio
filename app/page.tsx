@@ -54,8 +54,8 @@ export default function Home() {
       <AnimatePresence>
         {stage >= 1 && (
           <motion.div
-            initial={{ x: -200, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
+            initial={{ x: 10, y: 0, opacity: 0 }}
+            animate={{ x: 10, y: 300, opacity: 1 }}
             transition={{ duration: 1.5, type: "spring" }}
           >
             <Mascot 
