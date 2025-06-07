@@ -6,29 +6,34 @@ import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Mascot from '@/components/Mascot';
 import PixelButton from '@/components/PixelButton';
+import nutro from "../assets/Nutro.png";
+import optitrade from "../assets/optitrade.png";
+import blockchain from "../assets/smart-contract.jpg";
+import portfolio from "../assets/portfolio.png";
+import Image from 'next/image';
 
 const projects = [
   {
     id: 1,
     title: "AI Calorie Tracker",
     description: "A calorie tracking application that uses the OpenAI API for advanced food recognition. Users can scan meals with their camera for instant nutritional information and personalized recommendations.",
-    image: "https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: nutro,
     technologies: ["Flutter", "OpenAI", "Firebase", "iOS"],
   },
   {
     id: 2,
     title: "DeFi Trading Dashboard",
     description: "A clean, modern mock DeFi trading platform built in Next.js and TypeScript with Tailwind CSS. It pulls real-time crypto market data from a third-party API, displays interactive price charts, and features a mock order panel for a polished UX-focused demo.",
-    image: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: optitrade,
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "API"],
     github: "https://github.com/matteogisler/optitrade",
-    demo: "optitrade.vercel.app"
+    demo: "https://optitrade.vercel.app"
   },
   {
     id: 3,
     title: "CipherShare",
     description: "A decentralized, encrypted file-sharing application using IPFS for storage, PostgreSQL via Prisma for metadata, and an on-chain ACL smart contract deployed on a local Hardhat network.",
-    image: "https://images.pexels.com/photos/1118873/pexels-photo-1118873.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: blockchain,
     technologies: ["IPFS", "Blockchain", "Filesharing"],
     github: "https://github.com/matteogisler/CipherShare",
   },
@@ -36,10 +41,10 @@ const projects = [
     id: 4,
     title: "Portfolio Website",
     description: "This very website! Built with Next.js and featuring a cute mascot guide.",
-    image: "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=600",
+    image: portfolio,
     technologies: ["Next.js", "Framer Motion", "Tailwind CSS"],
-    github: "#",
-    demo: "#"
+    github: "https://github.com/matteogisler/portfolio",
+    demo: "https://matteogisler.com",
   }
 ];
 
@@ -101,7 +106,7 @@ export default function Projects() {
               onClick={() => handleProjectClick(project.id)}
             >
               <div className="relative overflow-hidden">
-                <img
+                <Image  
                   src={project.image}
                   alt={project.title}
                   className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
@@ -130,25 +135,32 @@ export default function Projects() {
                 </div>
                 
                 <div className="flex gap-3">
-                  <motion.a
-                    href={project.github}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
-                  >
-                    <Github size={16} />
-                    <span className="text-sm">Code</span>
-                  </motion.a>
-                  
-                  <motion.a
-                    href={project.demo}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <ExternalLink size={16} />
-                    <span className="text-sm">Demo</span>
-                  </motion.a>
+                  {/* Only show Code link if 'github' exists */}
+                  {project.github && (
+                    <motion.a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
+                    >
+                      <Github size={16} />
+                      <span className="text-sm">Code</span>
+                    </motion.a>
+                  )}
+                  {/* Only show Demo link if 'demo' exists */}
+                  {project.demo && (
+                    <motion.a
+                      href={project.demo}
+                      target="_blank"
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      <ExternalLink size={16} />
+                      <span className="text-sm">Demo</span>
+                    </motion.a>
+                  )}
                 </div>
               </div>
             </motion.div>
