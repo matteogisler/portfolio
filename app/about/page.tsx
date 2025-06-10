@@ -204,7 +204,7 @@ export default function About() {
         <Mascot
           pose="wave"
           position="side"
-          message="I'm always learning new tricks—just like me!"
+          message="He's always learning new tricks—just like me!"
         />
       )}
     </div>
