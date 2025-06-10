@@ -192,7 +192,7 @@ export default function About() {
                 <li>🎮 Love retro games (hence the pixel aesthetic!)</li>
                 <li>☕ Coffee enthusiast - 5+ cups a day</li>
                 <li>🌱 Always learning new frameworks</li>
-                <li>🎵 Code better with lo-fi music</li>
+                <li>🎵 Code better with jazz music</li>
               </ul>
             </motion.div>
           </motion.div>
