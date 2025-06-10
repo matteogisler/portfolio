@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Mail, Send, User, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Mail, Send, User, MessageCircle, CheckCircle, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Mascot from '@/components/Mascot';
 import PixelButton from '@/components/PixelButton';
@@ -15,7 +15,9 @@ export default function Contact() {
     message: ''
   });
   const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -23,19 +25,80 @@ export default function Contact() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setErrorMessage('Please enter your name');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setErrorMessage('Please enter your email');
+      return false;
+    }
+    if (!formData.message.trim()) {
+      setErrorMessage('Please enter a message');
+      return false;
+    }
     
-    // Simulate form submission
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', message: '' });
-    }, 2000);
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setErrorMessage('Please enter a valid email address');
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      setSubmitStatus('error');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', message: '' });
+        
+        // Reset success message after 5 seconds
+        setTimeout(() => {
+          setSubmitStatus('idle');
+        }, 5000);
+      } else {
+        setSubmitStatus('error');
+        setErrorMessage(data.error || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setErrorMessage('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (submitStatus === 'error') {
+      setSubmitStatus('idle');
+      setErrorMessage('');
+    }
   };
 
   return (
@@ -159,6 +222,7 @@ export default function Contact() {
                   }`}
                   placeholder="Enter your name"
                   required
+                  disabled={isSubmitting}
                 />
                 {focusedField === 'name' && (
                   <motion.div
@@ -202,6 +266,7 @@ export default function Contact() {
                   }`}
                   placeholder="your.email@example.com"
                   required
+                  disabled={isSubmitting}
                 />
                 {focusedField === 'email' && (
                   <motion.div
@@ -245,6 +310,7 @@ export default function Contact() {
                   }`}
                   placeholder="Tell me about your project or just say hello!"
                   required
+                  disabled={isSubmitting}
                 />
                 {focusedField === 'message' && (
                   <motion.div
@@ -271,35 +337,66 @@ export default function Contact() {
                 transition={{ delay: 0.6 }}
               >
                 <PixelButton
-                  className={`w-full ${submitted ? 'opacity-50' : ''}`}
-                  onClick={() => {}}
+                  className={`w-full ${isSubmitting ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+                  onClick={() => {
+                    if (isSubmitting) return; // Prevent click when submitting
+                    const form = document.querySelector('form');
+                    if (form) {
+                      const event = new Event('submit', { bubbles: true, cancelable: true });
+                      form.dispatchEvent(event);
+                    }
+                  }}
                 >
                   <motion.div
-                    animate={submitted ? { rotate: 360 } : {}}
-                    transition={{ duration: 0.5 }}
+                    animate={isSubmitting ? { rotate: 360 } : {}}
+                    transition={{ duration: 0.5, repeat: isSubmitting ? Infinity : 0 }}
                     className="flex items-center justify-center gap-2"
                   >
                     <Send size={16} />
-                    {submitted ? 'Sending...' : 'Send Message'}
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </motion.div>
                 </PixelButton>
               </motion.div>
             </form>
 
-            {/* Success Message */}
-            {submitted && (
+            {/* Status Messages */}
+            {submitStatus === 'success' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="mt-6 p-4 bg-green-100 border-2 border-green-300 rounded-lg text-center"
+                className="mt-6 p-4 bg-green-100 border-2 border-green-300 rounded-lg"
               >
-                <div className="text-2xl mb-2">🎉</div>
-                <p className="text-green-800 font-bold pixel-font">
-                  Message sent successfully!
-                </p>
-                <p className="text-green-600 text-sm">
-                  I'll get back to you soon!
-                </p>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="text-green-600" size={24} />
+                  <div>
+                    <p className="text-green-800 font-bold pixel-font">
+                      Message sent successfully! 🎉
+                    </p>
+                    <p className="text-green-600 text-sm">
+                      I'll get back to you soon!
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {submitStatus === 'error' && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mt-6 p-4 bg-red-100 border-2 border-red-300 rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="text-red-600" size={24} />
+                  <div>
+                    <p className="text-red-800 font-bold pixel-font">
+                      Oops! Something went wrong
+                    </p>
+                    <p className="text-red-600 text-sm">
+                      {errorMessage}
+                    </p>
+                  </div>
+                </div>
               </motion.div>
             )}
           </motion.div>
