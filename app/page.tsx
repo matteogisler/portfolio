@@ -1,157 +1,208 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Mascot from '@/components/Mascot';
-import PixelButton from '@/components/PixelButton';
+import ScreenTransition from '@/components/ScreenTransition';
+import villageMobile from '../app/assets/village-mobile.png';
+import villageDesktop from '../app/assets/village-desktop.png';
+
+type Direction = 'left' | 'up' | 'right';
+type MascotVisualDirection = 'front' | 'left' | 'right' | 'back';
+const hotspots: {
+  name: string;
+  path: string;
+  entry: Direction;
+  leftPct: number;
+  topPct: number;
+  widthPct: number;
+  heightPct: number;
+}[] = [
+  {
+    name: 'projects',
+    path: '/projects',
+    entry: 'left',
+    leftPct: 2,
+    topPct: 25,
+    widthPct: 28,
+    heightPct: 28,
+  },
+  {
+    name: 'about',
+    path: '/about',
+    entry: 'up',
+    leftPct: 32,
+    topPct: 25,
+    widthPct: 28,
+    heightPct: 28,
+  },
+  {
+    name: 'contact',
+    path: '/contact',
+    entry: 'right',
+    leftPct: 60,
+    topPct: 25,
+    widthPct: 28,
+    heightPct: 28,
+  },
+];
 
 export default function Home() {
-  const [stage, setStage] = useState(0);
-  const [showButtons, setShowButtons] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  const [isWalking, setIsWalking] = useState(false);
+  // Fine-tuned mascot start position (center of crossroad)
+  const [mascotPos, setMascotPos] = useState({ xPct: 50, yPct: 47 });
+  const [stage, setStage] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [mascotDirection, setMascotDirection] = useState<MascotVisualDirection>('front');
+
+  // On pageload entry from query
   useEffect(() => {
-    // Initial sequence
-    const timer1 = setTimeout(() => setStage(1), 1000); // Mascot walks in
-    const timer2 = setTimeout(() => setStage(2), 2500); // Speech bubble appears
-    const timer3 = setTimeout(() => setShowButtons(true), 4000); // Buttons appear
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-    };
+    const entry = searchParams.get('entry') as Direction | null;
+    if (entry && containerRef.current) {
+      // For now, always start at center crossroad (50, 65)
+      setMascotPos({ xPct: 50, yPct: 65 });
+      setMascotDirection('front');
+    }
   }, []);
 
-  const handleNavigation = (path: string) => {
-    router.push(path);
-  };
+  // Initial idle → speak
+  useEffect(() => {
+    const t1 = setTimeout(() => setStage(1), 800);
+    const t2 = setTimeout(() => setStage(2), 1800);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
+  function navigateTo(path: string, entry: Direction) {
+    if (isWalking || !containerRef.current) return;
+    setIsWalking(true);
+
+    // Set mascot direction based on entry
+    if (entry === 'left') setMascotDirection('left');
+    else if (entry === 'right') setMascotDirection('right');
+    else if (entry === 'up') setMascotDirection('back');
+
+    // Fine-tuned door waypoints (center of each house door)
+    let doorWaypoints = {
+      left: { xPct: 15, yPct: 41 },    // Projects
+      up: { xPct: 43, yPct: 41 },     // About
+      right: { xPct: 77, yPct: 41 },  // Contact
+    };
+
+    const startPos = mascotPos; // Current position (crossroad)
+    const endPos = doorWaypoints[entry];
+    const animationDuration = 800; // Milliseconds per segment
+
+    let intermediateWaypoint: { xPct: number; yPct: number; };
+    let firstMoveDirection: MascotVisualDirection;
+    let secondMoveDirection: MascotVisualDirection;
+
+    if (entry === 'left') {
+      // Move horizontally first, then vertically
+      intermediateWaypoint = { xPct: endPos.xPct, yPct: startPos.yPct };
+      firstMoveDirection = 'left';
+      secondMoveDirection = 'back'; // Moving up towards the house
+    } else if (entry === 'right') {
+      // Move horizontally first, then vertically
+      intermediateWaypoint = { xPct: endPos.xPct, yPct: startPos.yPct };
+      firstMoveDirection = 'right';
+      secondMoveDirection = 'back'; // Moving up towards the house
+    } else { // entry === 'up' for About
+      // Move vertically first, then horizontally
+      intermediateWaypoint = { xPct: startPos.xPct, yPct: endPos.yPct };
+      firstMoveDirection = 'back'; // Moving up towards the house
+      secondMoveDirection = 'front'; // No left/right movement, just facing forward at door
+    }
+
+    // First segment of walk
+    setMascotDirection(firstMoveDirection);
+    setMascotPos(intermediateWaypoint);
+
+    setTimeout(() => {
+      // Second segment of walk
+      setMascotDirection(secondMoveDirection);
+      setMascotPos(endPos);
+
+      setTimeout(() => {
+        // After reaching the door, transition to subpage
+        setIsTransitioning(true);
+        setTimeout(() => {
+          router.push(`${path}?entry=${entry}`);
+        }, 400); // Screen transition duration
+      }, animationDuration); // Wait for second segment to complete
+    }, animationDuration); // Wait for first segment to complete
+  }
+
+  // choose appropriate background and aspect ratio
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const bgUrl = isMobile ? villageMobile.src : villageDesktop.src;
+  const aspectRatio = isMobile ? (2 / 3) : (3 / 2);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Grass Pattern Background */}
-      <div className="absolute inset-0 grass-pattern" />
-      
-      {/* Floating Platform */}
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, delay: 0.5 }}
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+    <div className="w-full min-h-screen flex items-center justify-center bg-black">
+      <div
+        ref={containerRef}
+        style={{
+          position: 'relative',
+          width: '100%',
+          paddingBottom: `${100 / aspectRatio}%`, // Aspect ratio trick
+          aspectRatio: isMobile ? '2/3' : '3/2',
+          imageRendering: 'pixelated',
+        }}
+        className="overflow-hidden flex-shrink-0" // overflow-hidden for padding trick, flex-shrink-0 for parent flex
       >
-        <div className="w-64 h-16 bg-green-300 rounded-full opacity-50 shadow-lg" />
-        <div className="absolute top-2 left-4 right-4 h-8 bg-green-400 rounded-full opacity-60" />
-        
-        {/* Grass Details */}
-        <div className="absolute -top-2 left-8 w-2 h-6 bg-green-500 rounded-full transform rotate-12" />
-        <div className="absolute -top-1 left-16 w-1 h-4 bg-green-600 rounded-full transform -rotate-6" />
-        <div className="absolute -top-2 right-12 w-2 h-5 bg-green-500 rounded-full transform rotate-45" />
-        <div className="absolute -top-1 right-20 w-1 h-3 bg-green-600 rounded-full transform -rotate-12" />
-      </motion.div>
+        {/* Inner container for all game elements, to fill the padded space */}
+        <div className="absolute inset-0">
+          {/* Background Image - now fills the absolute inner container */}
+          <img
+            src={bgUrl}
+            alt="Village Background"
+            className="absolute inset-0 w-full h-full object-contain"
+            style={{ imageRendering: 'pixelated' }}
+          />
 
-      {/* Mascot */}
-      <AnimatePresence>
-        {stage >= 1 && (
-          <motion.div
-            initial={{ x: 10, y: 0, opacity: 0 }}
-            animate={{ x: 10, y: 300, opacity: 1 }}
-            transition={{ duration: 1.5, type: "spring" }}
-          >
-            <Mascot 
-              pose={stage === 1 ? 'walk' : 'speak'}
-              position="center"
-              message={stage >= 2 ? "Hello, I'm Matteo's little helper. Please select what you are looking for." : undefined}
+        <ScreenTransition isTransitioning={isTransitioning} />
+
+        {/* Mascot */}
+        <AnimatePresence>
+          {stage >= 1 && (
+            <Mascot
+              pose={isWalking ? 'walk' : stage === 1 ? 'walk' : 'speak'}
+              message={
+                stage >= 2 && !isWalking ? 'Click a house to explore!' : undefined
+              }
+              direction={isWalking ? mascotDirection : 'front'}
+              xPct={mascotPos.xPct}
+              yPct={mascotPos.yPct}
+              mascotSizePct={5.5}
             />
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
 
-      {/* Navigation Buttons */}
-      <AnimatePresence>
-        {showButtons && (
-          <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, staggerChildren: 0.2 }}
-            className="absolute bottom-32 left-1/2 transform -translate-x-1/2"
-          >
-            <div className="flex gap-6 flex-wrap justify-center">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <PixelButton onClick={() => handleNavigation('/projects')}>
-                  Projects
-                </PixelButton>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <PixelButton onClick={() => handleNavigation('/about')} variant="secondary">
-                  About
-                </PixelButton>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                <PixelButton onClick={() => handleNavigation('/contact')}>
-                  Contact
-                </PixelButton>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Decorative Elements */}
-      <motion.div
-        animate={{ 
-          y: [0, -10, 0],
-          x: [0, 5, 0] 
-        }}
-        transition={{ 
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute top-20 left-20 w-4 h-4 bg-yellow-300 rounded-full opacity-60"
-      />
-      
-      <motion.div
-        animate={{ 
-          y: [0, -15, 0],
-          x: [0, -8, 0] 
-        }}
-        transition={{ 
-          duration: 5,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-        className="absolute top-32 right-32 w-6 h-6 bg-pink-300 rounded-full opacity-60"
-      />
-      
-      <motion.div
-        animate={{ 
-          y: [0, -8, 0],
-          x: [0, 3, 0] 
-        }}
-        transition={{ 
-          duration: 3.5,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 2
-        }}
-        className="absolute bottom-40 left-40 w-5 h-5 bg-purple-300 rounded-full opacity-60"
-      />
+        {/* Hotspot buttons */}
+        {hotspots.map(h => (
+          <button
+            key={h.name}
+            aria-label={`Go to ${h.name}`}
+            onClick={() => navigateTo(h.path, h.entry)}
+            className="absolute"
+            style={{
+              left: `${h.leftPct}%`,
+              top: `${h.topPct}%`,
+              width: `${h.widthPct}%`,
+              height: `${h.heightPct}%`,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          />
+        ))}
+        </div> {/* End of inner absolute div */}
+      </div> {/* End of containerRef div */}
     </div>
   );
 }
