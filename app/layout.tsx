@@ -1,3 +1,4 @@
+import TransitionProvider from '@/components/TransitionProvider';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -17,9 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="min-h-screen">
-          {children}
-        </div>
+        <TransitionProvider>
+          <div className="min-h-screen">
+            {children}
+          </div>
+        </TransitionProvider>
       </body>
     </html>
   );
