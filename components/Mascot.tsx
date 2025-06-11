@@ -2,6 +2,10 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import facingLeft from '../app/assets/facing-left-removebg-preview.png';
+import facingRight from '../app/assets/facing-right-removebg-preview.png';
+import facingBack from '../app/assets/facing-back-removebg-preview.png';
+import facingForward from '../app/assets/facing-forward-removebg-preview.png';
 
 type MascotPose = 'idle' | 'walk' | 'jump' | 'speak' | 'wave';
 type MascotPosition = 'center' | 'corner' | 'side';
@@ -11,38 +15,62 @@ interface MascotProps {
   message?: string;
   position?: MascotPosition;
   onMessageComplete?: () => void;
+  typewriterDelay?: number; // ms
+  direction?: 'front' | 'left' | 'right' | 'back'; // new prop
+  xPct?: number; // new prop for percentage x position
+  yPct?: number; // new prop for percentage y position
+  mascotSizePct?: number; // new prop for mascot size as percentage of container width
 }
 
 const Mascot = ({ 
   pose = 'idle', 
   message, 
   position = 'center',
-  onMessageComplete 
+  onMessageComplete,
+  typewriterDelay = 600, // default delay before typewriter starts
+  direction = 'front', // default to front
+  xPct = 50, // default x position
+  yPct = 72, // default y position
+  mascotSizePct = 6, // default mascot size (6% of container width)
 }: MascotProps) => {
   const [showMessage, setShowMessage] = useState(false);
   const [currentPose, setCurrentPose] = useState<MascotPose>(pose);
+  const [displayedText, setDisplayedText] = useState('');
 
   useEffect(() => {
     if (message) {
       setCurrentPose('speak');
       setShowMessage(true);
+      setDisplayedText('');
+      let i = 0;
+      let interval: NodeJS.Timeout;
+      const timeout = setTimeout(() => {
+        interval = setInterval(() => {
+          setDisplayedText((prev) => {
+            if (i < message.length) {
+              i++;
+              return message.slice(0, i);
+            } else {
+              clearInterval(interval);
+              return prev;
+            }
+          });
+        }, 55); // 55ms per character for retro effect
+      }, typewriterDelay);
+      return () => {
+        clearTimeout(timeout);
+        if (interval) clearInterval(interval);
+      };
     } else {
       setCurrentPose(pose);
       setShowMessage(false);
+      setDisplayedText('');
     }
-  }, [message, pose]);
+  }, [message, pose, typewriterDelay]);
 
   const getPositionClasses = () => {
-    switch (position) {
-      case 'center':
-        return 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2';
-      case 'corner':
-        return 'bottom-8 right-8';
-      case 'side':
-        return 'top-1/2 left-8 transform -translate-y-1/2';
-      default:
-        return 'bottom-8 right-8';
-    }
+    // No longer needed, position handled by xPct/yPct and transform
+    return '';
   };
 
   const getMascotAnimation = () => {
@@ -75,9 +103,31 @@ const Mascot = ({
     }
   };
 
+  // Map direction to PNG
+  const getMascotImage = () => {
+    switch (direction) {
+      case 'left':
+        return facingLeft.src;
+      case 'right':
+        return facingRight.src;
+      case 'back':
+        return facingBack.src;
+      case 'front':
+      default:
+        return facingForward.src;
+    }
+  };
+
   return (
     <motion.div
-      className={`fixed z-50 ${getPositionClasses()}`}
+      className={`absolute z-50`}
+      style={{
+        left: `${xPct}%`,
+        top: `${yPct}%`,
+        transform: 'translate(-50%, -50%)',
+        width: `${mascotSizePct}%`,
+        height: `${mascotSizePct}%`, // Ensure container is also square and scales with width
+      }}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, type: "spring" }}
@@ -90,9 +140,9 @@ const Mascot = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.8 }}
             transition={{ duration: 0.3 }}
-            className="speech-bubble pixel-font text-sm mb-4 max-w-xs"
+            className="speech-bubble pixel-font text-sm mb-4 w-72 px-8 py-5"
           >
-            {message}
+            {displayedText}
             <button
               onClick={() => {
                 setShowMessage(false);
@@ -111,53 +161,17 @@ const Mascot = ({
         animate={getMascotAnimation()}
         className="relative"
       >
-        {/* Simple SVG Mascot */}
-        <svg width="80" height="80" viewBox="0 0 80 80" className="drop-shadow-lg">
-          {/* Shadow */}
-          <ellipse cx="40" cy="75" rx="25" ry="5" fill="rgba(0,0,0,0.1)" />
-          
-          {/* Body */}
-          <circle cx="40" cy="45" r="20" fill="#60A5FA" stroke="#1E40AF" strokeWidth="2" />
-          
-          {/* Head */}
-          <circle cx="40" cy="25" r="15" fill="#93C5FD" stroke="#1E40AF" strokeWidth="2" />
-          
-          {/* Eyes */}
-          <circle cx="35" cy="22" r="3" fill="#1E40AF" />
-          <circle cx="45" cy="22" r="3" fill="#1E40AF" />
-          <circle cx="36" cy="21" r="1" fill="white" />
-          <circle cx="46" cy="21" r="1" fill="white" />
-          
-          {/* Cheeks */}
-          <circle cx="28" cy="28" r="3" fill="#FCA5A5" opacity="0.6" />
-          <circle cx="52" cy="28" r="3" fill="#FCA5A5" opacity="0.6" />
-          
-          {/* Mouth */}
-          {currentPose === 'speak' ? (
-            <ellipse cx="40\" cy="30\" rx="3\" ry="2\" fill="#1E40AF" />
-          ) : (
-            <path d="M 37 30 Q 40 33 43 30\" stroke="#1E40AF\" strokeWidth="2\" fill="none" />
-          )}
-          
-          {/* Arms */}
-          <circle cx="25" cy="40" r="6" fill="#60A5FA" stroke="#1E40AF" strokeWidth="2" />
-          <circle cx="55" cy="40" r="6" fill="#60A5FA" stroke="#1E40AF" strokeWidth="2" />
-          
-          {/* Wave effect for wave pose */}
-          {currentPose === 'wave' && (
-            <motion.g
-              animate={{ rotate: [0, 20, -20, 0] }}
-              transition={{ duration: 0.8, repeat: 2 }}
-              style={{ transformOrigin: "55px 40px" }}
-            >
-              <circle cx="55" cy="40" r="6" fill="#60A5FA" stroke="#1E40AF" strokeWidth="2" />
-            </motion.g>
-          )}
-          
-          {/* Feet */}
-          <ellipse cx="32" cy="62" rx="6" ry="4" fill="#1E40AF" />
-          <ellipse cx="48" cy="62" rx="6" ry="4" fill="#1E40AF" />
-        </svg>
+        {/* Render mascot PNG based on direction */}
+        <img
+          src={getMascotImage()}
+          alt="Mascot"
+          style={{
+            width: '100%', // Fill the parent motion.div
+            height: '100%', // Fill the parent motion.div
+            imageRendering: 'pixelated',
+            objectFit: 'contain', // Ensure image fits without distortion
+          }}
+        />
       </motion.div>
     </motion.div>
   );
