@@ -88,11 +88,11 @@ export default function Home() {
       right: { xPct: 67, yPct: 41 },  // Contact
     };
 
-    const startPos = mascotPos; // Current position (crossroad)
+    const startPos = mascotPos; 
     const endPos = doorWaypoints[entry];
 
     // Define speed factor (milliseconds per percentage point of movement)
-    const speedFactor = 50; // Adjusted to make movement slower
+    const speedFactor = 50;
 
     let intermediateWaypoint: { xPct: number; yPct: number; };
     let firstMoveDirection: MascotVisualDirection;
@@ -108,9 +108,9 @@ export default function Home() {
     } else if (entry === 'right') {
       firstMoveDirection = 'right';
     } else { // entry === 'up' for About
-      firstMoveDirection = 'left'; // Move left to get to the 'about' house's X coordinate
+      firstMoveDirection = 'left';
     }
-    secondMoveDirection = 'back'; // Always moving up towards the house for the second segment
+    secondMoveDirection = 'back';
 
     firstSegmentDuration = Math.abs(intermediateWaypoint.xPct - startPos.xPct) * speedFactor;
     secondSegmentDuration = Math.abs(endPos.yPct - intermediateWaypoint.yPct) * speedFactor;
@@ -134,9 +134,9 @@ export default function Home() {
         setIsTransitioning(true);
         setTimeout(() => {
           router.push(`${path}?entry=${entry}`);
-        }, 400); // Screen transition duration
-      }, secondSegmentDuration); // Use calculated second segment duration
-    }, firstSegmentDuration); // Use calculated first segment duration
+        }, 400);
+      }, secondSegmentDuration); 
+    }, firstSegmentDuration); 
   }
 
   // choose appropriate background and aspect ratio
