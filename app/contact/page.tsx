@@ -176,10 +176,11 @@ export default function Contact() {
             <div className="space-y-3">
               <h3 className="font-bold text-slate-800 pixel-font">Find me elsewhere:</h3>
               <div className="flex gap-4">
-                {['GitHub', 'LinkedIn', 'Twitter'].map((platform) => (
+                {['GitHub', 'LinkedIn'].map((platform) => (
                   <motion.a
                     key={platform}
-                    href="#"
+                    target="_blank"
+                    href={platform === 'GitHub' ? 'https://github.com/matteogisler' : 'https://www.linkedin.com/in/matteo-gisler-961bb9221/'}
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     className="px-4 py-2 bg-slate-200 text-slate-700 rounded border-2 border-slate-300 hover:bg-slate-300 transition-colors pixel-font text-sm"
@@ -407,10 +408,14 @@ export default function Contact() {
       {showMascot && (
         <Mascot
           pose="speak"
-          position="side"
-          message="Send me a message—let's catch up soon!"
+          message="I'm here to help you get in touch! Feel free to send a message or connect via social media."
+          direction="front"
+          xPct={5}
+          yPct={40}
         />
       )}
+
+      {/* Project Modal Effect */}
     </div>
   );
 }
