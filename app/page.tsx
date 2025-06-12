@@ -112,10 +112,10 @@ export default function Home() {
       firstMoveDirection = 'right';
       secondMoveDirection = 'back'; // Moving up towards the house
     } else { // entry === 'up' for About
-      // Move vertically first, then horizontally
-      intermediateWaypoint = { xPct: startPos.xPct, yPct: endPos.yPct };
-      firstMoveDirection = 'back'; // Moving up towards the house
-      secondMoveDirection = 'front';
+      // Move horizontally first, then vertically
+      intermediateWaypoint = { xPct: endPos.xPct, yPct: startPos.yPct };
+      firstMoveDirection = 'left'; 
+      secondMoveDirection = 'back'; // Moving up towards the house
     }
 
     // First segment of walk
