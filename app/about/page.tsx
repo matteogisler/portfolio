@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Code, Palette, Zap, Heart } from 'lucide-react';
+import { ArrowLeft, Code, Zap, Heart, Database } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Mascot from '@/components/Mascot';
 import PixelButton from '@/components/PixelButton';
 
 const skills = [
-  { name: "JavaScript", level: 90, icon: Code, color: "bg-yellow-400" },
-  { name: "React/Next.js", level: 85, icon: Zap, color: "bg-blue-400" },
-  { name: "TypeScript", level: 80, icon: Code, color: "bg-blue-600" },
-  { name: "UI/UX Design", level: 75, icon: Palette, color: "bg-purple-400" },
-  { name: "Node.js", level: 70, icon: Zap, color: "bg-green-400" },
+  { name: "React/Next.js", level: 90, icon: Code, color: "bg-yellow-400" },
+  { name: "TypeScript", level: 80, icon: Zap, color: "bg-blue-400" },
+  { name: "SQL", level: 80, icon: Database, color: "bg-blue-600" },
+  { name: "C#", level: 70, icon: Code, color: "bg-purple-400" },
+  { name: "Node.js", level: 75, icon: Zap, color: "bg-green-400" },
   { name: "Problem Solving", level: 95, icon: Heart, color: "bg-red-400" }
 ];
 
