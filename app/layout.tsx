@@ -16,10 +16,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className="h-full overflow-x-hidden">
+      <body className={`${inter.className} h-full overflow-x-hidden`}>
         <TransitionProvider>
-          <div className="min-h-screen">
+          <div className="min-h-screen h-full overflow-x-hidden">
             {children}
           </div>
         </TransitionProvider>
