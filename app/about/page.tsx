@@ -202,9 +202,11 @@ export default function About() {
       {/* Mascot */}
       {showMascot && (
         <Mascot
-          pose="wave"
-          position="side"
-          message="He's always learning new tricks—just like me!"
+          pose="speak"
+          message="I'm excited to share my journey with you! Let's connect and build something amazing."
+          direction="front"
+          xPct={5}
+          yPct={50}
         />
       )}
     </div>
