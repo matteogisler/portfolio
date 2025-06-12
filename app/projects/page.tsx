@@ -63,7 +63,7 @@ export default function Projects() {
   };
 
   return (
-    <div className="min-h-screen p-8">
+    <div className="flex flex-col min-h-screen p-8 overflow-y-auto">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
@@ -171,9 +171,11 @@ export default function Projects() {
       {/* Mascot */}
       {showMascot && (
         <Mascot
-          pose="jump"
-          position="corner"
-          message="This one took way too long, but it turned out quite good!"
+          pose="idle"
+          message="Check out my work! From AI to Blockchain, there's a lot to explore."
+          direction="front"
+          xPct={80}
+          yPct={55}
         />
       )}
 
