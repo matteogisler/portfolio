@@ -201,8 +201,8 @@ export default function Home() {
             }}
           />
         ))}
-        </div> {/* End of inner absolute div */}
-      </div> {/* End of containerRef div */}
+        </div>
+      </div> 
     </div>
   );
 }
