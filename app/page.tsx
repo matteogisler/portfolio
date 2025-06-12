@@ -115,7 +115,7 @@ export default function Home() {
       // Move vertically first, then horizontally
       intermediateWaypoint = { xPct: startPos.xPct, yPct: endPos.yPct };
       firstMoveDirection = 'back'; // Moving up towards the house
-      secondMoveDirection = 'front'; // No left/right movement, just facing forward at door
+      secondMoveDirection = 'front';
     }
 
     // First segment of walk
@@ -132,9 +132,9 @@ export default function Home() {
         setIsTransitioning(true);
         setTimeout(() => {
           router.push(`${path}?entry=${entry}`);
-        }, 400); // Screen transition duration
-      }, animationDuration); // Wait for second segment to complete
-    }, animationDuration); // Wait for first segment to complete
+        }, 400); 
+      }, animationDuration); 
+    }, animationDuration); 
   }
 
   // choose appropriate background and aspect ratio
@@ -153,7 +153,7 @@ export default function Home() {
           imageRendering: 'pixelated',
           height: '100%',
         }}
-        className="flex-shrink-0" // overflow-hidden for padding trick, flex-shrink-0 for parent flex
+        className="flex-shrink-0"
       >
         {/* Inner container for all game elements, to fill the padded space */}
         <div className="absolute inset-0">
