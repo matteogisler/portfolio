@@ -143,17 +143,17 @@ export default function Home() {
   const aspectRatio = isMobile ? (2 / 3) : (3 / 2);
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-black">
+    <div className="w-full min-h-screen flex items-center justify-center bg-black h-screen">
       <div
         ref={containerRef}
         style={{
           position: 'relative',
           width: '100%',
-          paddingBottom: `${100 / aspectRatio}%`, // Aspect ratio trick
           aspectRatio: isMobile ? '2/3' : '3/2',
           imageRendering: 'pixelated',
+          height: '100%',
         }}
-        className="overflow-hidden flex-shrink-0" // overflow-hidden for padding trick, flex-shrink-0 for parent flex
+        className="flex-shrink-0" // overflow-hidden for padding trick, flex-shrink-0 for parent flex
       >
         {/* Inner container for all game elements, to fill the padded space */}
         <div className="absolute inset-0">
@@ -161,7 +161,7 @@ export default function Home() {
           <img
             src={bgUrl}
             alt="Village Background"
-            className="absolute inset-0 w-full h-full object-contain"
+            className="absolute inset-0 w-full h-full object-cover"
             style={{ imageRendering: 'pixelated' }}
           />
 
