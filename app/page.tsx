@@ -10,7 +10,8 @@ import villageDesktop from '../app/assets/village-desktop.png';
 
 type Direction = 'left' | 'up' | 'right';
 type MascotVisualDirection = 'front' | 'left' | 'right' | 'back';
-const hotspots: {
+
+interface Hotspot {
   name: string;
   path: string;
   entry: Direction;
@@ -18,7 +19,9 @@ const hotspots: {
   topPct: number;
   widthPct: number;
   heightPct: number;
-}[] = [
+}
+
+const desktopHotspots: Hotspot[] = [
   {
     name: 'projects',
     path: '/projects',
@@ -48,27 +51,86 @@ const hotspots: {
   },
 ];
 
+const mobileHotspots: Hotspot[] = [
+  {
+    name: 'about',
+    path: '/about',
+    entry: 'up',
+    leftPct: 35,
+    topPct: 12,
+    widthPct: 30,
+    heightPct: 30,
+  },
+  {
+    name: 'projects',
+    path: '/projects',
+    entry: 'left',
+    leftPct: 7,
+    topPct: 50,
+    widthPct: 30,
+    heightPct: 30,
+  },
+  {
+    name: 'contact',
+    path: '/contact',
+    entry: 'right',
+    leftPct: 62,
+    topPct: 55,
+    widthPct: 30,
+    heightPct: 30,
+  },
+];
+
+const desktopDoorWaypoints = {
+  left: { xPct: 15, yPct: 41 },    // Projects
+  up: { xPct: 43, yPct: 41 },     // About
+  right: { xPct: 67, yPct: 41 },  // Contact
+};
+
+const mobileDoorWaypoints = {
+  up: { xPct: 50, yPct: 35 }, // About
+  left: { xPct: 25, yPct: 65 }, // Projects
+  right: { xPct: 75, yPct: 65 }, // Contact
+};
+
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [isWalking, setIsWalking] = useState(false);
-  // Fine-tuned mascot start position (center of crossroad)
   const [mascotPos, setMascotPos] = useState({ xPct: 50, yPct: 47 });
   const [stage, setStage] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [mascotDirection, setMascotDirection] = useState<MascotVisualDirection>('front');
 
+  // choose appropriate background and aspect ratio
+  const [isMobile, setIsMobile] = useState(false);
+  const bgUrl = isMobile ? villageMobile.src : villageDesktop.src;
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Set initial mascot position based on mobile status
+  useEffect(() => {
+    setMascotPos({ xPct: 50, yPct: isMobile ? 50 : 65 });
+  }, [isMobile]);
+
   // On pageload entry from query
   useEffect(() => {
     const entry = searchParams.get('entry') as Direction | null;
     if (entry && containerRef.current) {
-      // For now, always start at center crossroad (50, 65)
-      setMascotPos({ xPct: 50, yPct: 65 });
+      // For now, always start at center crossroad
+      setMascotPos({ xPct: 50, yPct: isMobile ? 50 : 65 });
       setMascotDirection('front');
     }
-  }, []);
+  }, [searchParams, isMobile]);
 
   // Initial idle → speak
   useEffect(() => {
@@ -81,12 +143,7 @@ export default function Home() {
     if (isWalking || !containerRef.current) return;
     setIsWalking(true);
 
-    // Fine-tuned door waypoints (center of each house door)
-    let doorWaypoints = {
-      left: { xPct: 15, yPct: 41 },    // Projects
-      up: { xPct: 43, yPct: 41 },     // About
-      right: { xPct: 67, yPct: 41 },  // Contact
-    };
+    const doorWaypoints = isMobile ? mobileDoorWaypoints : desktopDoorWaypoints;
 
     const startPos = mascotPos; 
     const endPos = doorWaypoints[entry];
@@ -139,11 +196,6 @@ export default function Home() {
     }, firstSegmentDuration); 
   }
 
-  // choose appropriate background and aspect ratio
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const bgUrl = isMobile ? villageMobile.src : villageDesktop.src;
-  const aspectRatio = isMobile ? (2 / 3) : (3 / 2);
-
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-black h-screen overflow-hidden">
       <div
@@ -186,13 +238,12 @@ export default function Home() {
         </AnimatePresence>
 
         {/* Hotspot buttons */}
-        {hotspots.map(h => (
+        {(isMobile ? mobileHotspots : desktopHotspots).map(h => (
           <button
             key={h.name}
-            aria-label={`Go to ${h.name}`}
             onClick={() => navigateTo(h.path, h.entry)}
-            className="absolute"
             style={{
+              position: 'absolute',
               left: `${h.leftPct}%`,
               top: `${h.topPct}%`,
               width: `${h.widthPct}%`,
