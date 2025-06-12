@@ -174,7 +174,7 @@ export default function Projects() {
           pose="idle"
           message="Check out my work! From AI to Blockchain, there's a lot to explore."
           direction="front"
-          xPct={15}
+          xPct={5}
           yPct={55}
         />
       )}
