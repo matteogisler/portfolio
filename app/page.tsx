@@ -81,42 +81,44 @@ export default function Home() {
     if (isWalking || !containerRef.current) return;
     setIsWalking(true);
 
-    // Set mascot direction based on entry
-    if (entry === 'left') setMascotDirection('left');
-    else if (entry === 'right') setMascotDirection('right');
-    else if (entry === 'up') setMascotDirection('back');
-
     // Fine-tuned door waypoints (center of each house door)
     let doorWaypoints = {
       left: { xPct: 15, yPct: 41 },    // Projects
       up: { xPct: 43, yPct: 41 },     // About
-      right: { xPct: 77, yPct: 41 },  // Contact
+      right: { xPct: 67, yPct: 41 },  // Contact
     };
 
     const startPos = mascotPos; // Current position (crossroad)
     const endPos = doorWaypoints[entry];
-    const animationDuration = 800; // Milliseconds per segment
+
+    // Define speed factor (milliseconds per percentage point of movement)
+    const speedFactor = 50; // Adjusted to make movement slower
 
     let intermediateWaypoint: { xPct: number; yPct: number; };
     let firstMoveDirection: MascotVisualDirection;
     let secondMoveDirection: MascotVisualDirection;
+    let firstSegmentDuration: number;
+    let secondSegmentDuration: number;
+
+    // All paths now move horizontally first, then vertically
+    intermediateWaypoint = { xPct: endPos.xPct, yPct: startPos.yPct };
 
     if (entry === 'left') {
-      // Move horizontally first, then vertically
-      intermediateWaypoint = { xPct: endPos.xPct, yPct: startPos.yPct };
       firstMoveDirection = 'left';
-      secondMoveDirection = 'back'; // Moving up towards the house
     } else if (entry === 'right') {
-      // Move horizontally first, then vertically
-      intermediateWaypoint = { xPct: endPos.xPct, yPct: startPos.yPct };
       firstMoveDirection = 'right';
-      secondMoveDirection = 'back'; // Moving up towards the house
     } else { // entry === 'up' for About
-      // Move horizontally first, then vertically
-      intermediateWaypoint = { xPct: endPos.xPct, yPct: startPos.yPct };
-      firstMoveDirection = 'left'; 
-      secondMoveDirection = 'back'; // Moving up towards the house
+      firstMoveDirection = 'left'; // Move left to get to the 'about' house's X coordinate
     }
+    secondMoveDirection = 'back'; // Always moving up towards the house for the second segment
+
+    firstSegmentDuration = Math.abs(intermediateWaypoint.xPct - startPos.xPct) * speedFactor;
+    secondSegmentDuration = Math.abs(endPos.yPct - intermediateWaypoint.yPct) * speedFactor;
+
+    // Ensure minimum duration to avoid zero duration for very short movements or weird behavior
+    const minDuration = 200;
+    firstSegmentDuration = Math.max(firstSegmentDuration, minDuration);
+    secondSegmentDuration = Math.max(secondSegmentDuration, minDuration);
 
     // First segment of walk
     setMascotDirection(firstMoveDirection);
@@ -132,9 +134,9 @@ export default function Home() {
         setIsTransitioning(true);
         setTimeout(() => {
           router.push(`${path}?entry=${entry}`);
-        }, 400); 
-      }, animationDuration); 
-    }, animationDuration); 
+        }, 400); // Screen transition duration
+      }, secondSegmentDuration); // Use calculated second segment duration
+    }, firstSegmentDuration); // Use calculated first segment duration
   }
 
   // choose appropriate background and aspect ratio
@@ -143,7 +145,7 @@ export default function Home() {
   const aspectRatio = isMobile ? (2 / 3) : (3 / 2);
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-black h-screen">
+    <div className="w-full min-h-screen flex items-center justify-center bg-black h-screen overflow-hidden">
       <div
         ref={containerRef}
         style={{
