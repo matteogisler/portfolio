@@ -85,12 +85,12 @@ export default function Projects() {
       </motion.div>
 
       {/* Projects Grid */}
-      <div className="max-w-6xl mx-auto">
+      <div className="px-4 pb-8">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto"
         >
           {projects.map((project, index) => (
             <motion.div
@@ -174,7 +174,7 @@ export default function Projects() {
           pose="idle"
           message="Check out my work! From AI to Blockchain, there's a lot to explore."
           direction="front"
-          xPct={80}
+          xPct={15}
           yPct={55}
         />
       )}

@@ -119,7 +119,7 @@ export default function Home() {
 
   // Set initial mascot position based on mobile status
   useEffect(() => {
-    setMascotPos({ xPct: 50, yPct: isMobile ? 50 : 65 });
+    setMascotPos({ xPct: 50, yPct: isMobile ? 50 : 47 });
   }, [isMobile]);
 
   // On pageload entry from query
