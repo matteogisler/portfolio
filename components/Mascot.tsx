@@ -15,11 +15,11 @@ interface MascotProps {
   message?: string;
   position?: MascotPosition;
   onMessageComplete?: () => void;
-  typewriterDelay?: number; // ms
-  direction?: 'front' | 'left' | 'right' | 'back'; // new prop
-  xPct?: number; // new prop for percentage x position
-  yPct?: number; // new prop for percentage y position
-  mascotSizePct?: number; // new prop for mascot size as percentage of container width
+  typewriterDelay?: number; 
+  direction?: 'front' | 'left' | 'right' | 'back';
+  xPct?: number; 
+  yPct?: number; 
+  mascotSizePct?: number; 
 }
 
 const Mascot = ({ 
@@ -27,11 +27,11 @@ const Mascot = ({
   message, 
   position = 'center',
   onMessageComplete,
-  typewriterDelay = 600, // default delay before typewriter starts
-  direction = 'front', // default to front
-  xPct = 50, // default x position
-  yPct = 72, // default y position
-  mascotSizePct = 6, // default mascot size (6% of container width)
+  typewriterDelay = 600,
+  direction = 'front', 
+  xPct = 50,
+  yPct = 72,
+  mascotSizePct = 6,
 }: MascotProps) => {
   const [showMessage, setShowMessage] = useState(false);
   const [currentPose, setCurrentPose] = useState<MascotPose>(pose);
@@ -55,7 +55,7 @@ const Mascot = ({
               return prev;
             }
           });
-        }, 55); // 55ms per character for retro effect
+        }, 55);
       }, typewriterDelay);
       return () => {
         clearTimeout(timeout);
@@ -67,11 +67,6 @@ const Mascot = ({
       setDisplayedText('');
     }
   }, [message, pose, typewriterDelay]);
-
-  const getPositionClasses = () => {
-    // No longer needed, position handled by xPct/yPct and transform
-    return '';
-  };
 
   const getMascotAnimation = () => {
     switch (currentPose) {
@@ -126,7 +121,7 @@ const Mascot = ({
         top: `${yPct}%`,
         transform: 'translate(-50%, -50%)',
         width: `${mascotSizePct}%`,
-        height: `${mascotSizePct}%`, // Ensure container is also square and scales with width
+        height: `${mascotSizePct}%`,
       }}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -166,10 +161,10 @@ const Mascot = ({
           src={getMascotImage()}
           alt="Mascot"
           style={{
-            width: '100%', // Fill the parent motion.div
-            height: '100%', // Fill the parent motion.div
+            width: '100%',
+            height: '100%', 
             imageRendering: 'pixelated',
-            objectFit: 'contain', // Ensure image fits without distortion
+            objectFit: 'contain',
           }}
         />
       </motion.div>
