@@ -16,7 +16,7 @@ const projects = [
   {
     id: 1,
     title: "AI Calorie Tracker",
-    description: "A calorie tracking application that uses the OpenAI API for advanced food recognition. Users can scan meals with their camera for instant nutritional information and personalized recommendations.",
+    description: "A calorie tracking application that uses the OpenAI API for advanced food recognition. Users can scan meals with their camera for instant nutritional information and personalized recommendations. This was built in under 24 hours for a hackathon in which me and my friend won second place🏆",
     image: nutro,
     technologies: ["Flutter", "OpenAI", "Firebase", "iOS"],
   },
